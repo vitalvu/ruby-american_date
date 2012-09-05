@@ -4,7 +4,9 @@ if RUBY_VERSION >= '1.9'
   # Modify parsing methods to handle american date format correctly.
   class << Date
     # American date format detected by the library.
-    AMERICAN_DATE_RE = %r_\A\s*(\d{1,2})/(\d{1,2})/(\d{4}|\d{2})_.freeze
+    AMERICAN_DATE_SHORT = %r_\A\s*(\d{1,2})/(\d{1,2})/(\d{2})_.freeze
+    AMERICAN_DATE_LONG = %r_\A\s*(\d{1,2})/(\d{1,2})/(\d{4})_.freeze
+
 
     # Alias for stdlib Date._parse
     alias _parse_without_american_date _parse
@@ -28,7 +30,13 @@ if RUBY_VERSION >= '1.9'
 
     # Transform american date fromat into ISO format.
     def convert_american_to_iso(string)
-      string.sub(AMERICAN_DATE_RE){|m| "#$3-#$1-#$2"}
+      if (string =~ AMERICAN_DATE_LONG) ==0
+        string.sub(AMERICAN_DATE_LONG){|m| "#$3-#$1-#$2"}
+      elsif (string =~ AMERICAN_DATE_SHORT) ==0
+        string.sub(AMERICAN_DATE_SHORT){|m| "20#$3-#$1-#$2"}
+      else
+        string
+      end
     end
   end
 
